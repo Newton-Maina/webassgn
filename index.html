@@ -3,6 +3,7 @@
 <head>
     <title>Visitor Tracking</title>
     <script type="text/javascript">
+    // Retrieve a cookie value by its name
     function getCookie(c_name) {
         if (document.cookie.length > 0) {
             let c_start = document.cookie.indexOf(c_name + "=");
@@ -16,6 +17,7 @@
         return "";
     }
 
+    // Set a cookie with a name, value, and expiration date
     function setCookie(c_name, value, expiredays) {
         try {
             const exdate = new Date();
@@ -32,17 +34,17 @@
         }
     }
 
+    // Check if the cookies exist, update the DOM accordingly, and prompt for first-time visitors
     function checkCookie() {
         console.log("Current cookies:", document.cookie);
         const username = getCookie('username');
         const lastVisit = getCookie('lastVisit');
 
-        console.log("Retrieved username:", username);
-        console.log("Retrieved lastVisit:", lastVisit);
-
+        // Get current date in a readable format
         const currentDate = new Date().toLocaleString();
 
         if (username) {
+            // User has visited before
             let welcomeMessage = 'Welcome back, ' + username + '!';
 
             if (lastVisit) {
@@ -51,11 +53,10 @@
 
             alert(welcomeMessage);
 
-            if (setCookie('lastVisit', currentDate, 365)) {
-                console.log("Last visit date updated successfully");
-            }
+            // Update the last visit date if user has visited before
+            setCookie('lastVisit', currentDate, 365);
         } else {
-            // First time visitor
+            // First-time visitor
             const newUsername = prompt('Please enter your name:', "");
 
             if (newUsername != null && newUsername != "") {
@@ -68,19 +69,22 @@
                 alert('Welcome, ' + newUsername + '! This is your first visit.');
             }
         }
+
+        // Update the display after cookies are checked and set
         updateDisplay();
     }
 
+    // Update the page display with the cookie values
     function updateDisplay() {
-
         document.getElementById('usernameDisplay').textContent = getCookie('username') || 'Not set';
         document.getElementById('lastVisitDisplay').textContent = getCookie('lastVisit') || 'Not set';
     }
 
+    // Clear cookies and update the display
     function clearCookies() {
         document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         document.cookie = "lastVisit=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        updateDisplay();
+        updateDisplay(); // Update the display after clearing cookies
         alert('Cookies have been cleared!');
     }
     </script>
