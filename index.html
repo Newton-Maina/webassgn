@@ -5,95 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assignment 3 - Web Track Visitors Entry</title>
     <script type="text/javascript">
-        function checkCookie(cookieKey) {
-            if (document.cookie.length > 0) {
-                let startIdx = document.cookie.indexOf(cookieKey + "=");
-                if (startIdx != -1) {
-                    startIdx = startIdx + cookieKey.length + 1;
-                    let endIdx = document.cookie.indexOf(";", startIdx);
-                    if (endIdx == -1) endIdx = document.cookie.length;
-                    return decodeURIComponent(document.cookie.substring(startIdx, endIdx));
-                }
-            }
-            return "";
-        }
 
-        function setCookie(cookieKey, cookieValue, daysToExpire) {
-            try {
-                const expiryDate = new Date();
-                expiryDate.setDate(expiryDate.getDate() + daysToExpire);
-                const cookieString = cookieKey + "=" + encodeURIComponent(cookieValue) +
-                    ";expires=" + expiryDate.toUTCString() +
-                    ";path=/";
-                document.cookie = cookieString;
-                return true;
-            } catch (error) {
-                console.error("Error setting cookie:", error);
-                return false;
+    function retrieveVisitorCookie(cookieKey) {
+        if (document.cookie.length > 0) {
+            let startIdx = document.cookie.indexOf(cookieKey + "=");
+            if (startIdx != -1) {
+                startIdx = startIdx + cookieKey.length + 1;
+                let endIdx = document.cookie.indexOf(";", startIdx);
+                if (endIdx == -1) endIdx = document.cookie.length;
+                return decodeURIComponent(document.cookie.substring(startIdx, endIdx));
             }
         }
+        return "";
+    }
 
-        function manageCookies() {
-            const visitorName = checkCookie('visitorName');
-            const lastVisitDate = checkCookie('lastVisitDate');
-            const currentDate = new Date().toLocaleString();
 
-            if (visitorName) {
-                let welcomeMessage = 'Welcome back, ' + visitorName + '!';
-                if (lastVisitDate) {
-                    welcomeMessage += '\nYour last visit was on: ' + lastVisitDate;
-                }
-                alert(welcomeMessage);
+    function storeVisitorCookie(cookieKey, cookieValue, daysToExpire) {
+        try {
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + daysToExpire);
+            const cookieString = cookieKey + "=" + encodeURIComponent(cookieValue) +
+                ";expires=" + expiryDate.toUTCString() +
+                ";path=/";
+            document.cookie = cookieString;
+            console.log("Cookie successfully set:", cookieString);
+            return true;
+        } catch (error) {
+            console.error("Error setting cookie:", error);
+            return false;
+        }
+    }
 
-                if (setCookie('lastVisitDate', currentDate, 365)) {
-                    console.log("Last visit date updated.");
+    function manageVisitorCookies() {
+        console.log("Cookies in current session:", document.cookie);
+        const visitorName = retrieveVisitorCookie('visitorName');
+        const lastVisitDate = retrieveVisitorCookie('lastVisitDate');
+
+        const currentDate = new Date().toLocaleString();
+
+        if (visitorName) {
+            // Returning visitor
+            let welcomeMessage = 'Welcome back, ' + visitorName + '!';
+
+            if (lastVisitDate) {
+                welcomeMessage += '\nYour last visit was on: ' + lastVisitDate;
+            }
+
+            alert(welcomeMessage);
+
+
+            if (storeVisitorCookie('lastVisitDate', currentDate, 365)) {
+                console.log("Last visit date updated.");
+            }
+        } else {
+
+            const newVisitorName = prompt('Please enter your name:', "");
+
+            if (newVisitorName != null && newVisitorName != "") {
+                if (storeVisitorCookie('visitorName', newVisitorName, 365)) {
+                    console.log("Visitor name stored.");
                 }
-            } else {
-                const newVisitorName = prompt('Please enter your name:', "");
-                if (newVisitorName != null && newVisitorName != "") {
-                    if (setCookie('visitorName', newVisitorName, 365)) {
-                        console.log("Visitor name stored.");
-                    }
-                    if (setCookie('lastVisitDate', currentDate, 365)) {
-                        console.log("First visit date stored.");
-                    }
-                    alert('Welcome, ' + newVisitorName + '! This is your first visit.');
+                if (storeVisitorCookie('lastVisitDate', currentDate, 365)) {
+                    console.log("First visit date stored.");
                 }
+                alert('Welcome, ' + newVisitorName + '! This is your first visit.');
             }
         }
+    }
 
-        function updateVisitorInfo() {
-            document.getElementById('visitorNameDisplay').textContent = checkCookie('visitorName') || 'No name set';
-            document.getElementById('lastVisitDisplay').textContent = checkCookie('lastVisitDate') || 'No previous visits';
-        }
+    function updateVisitorInfo() {
+        document.getElementById('visitorNameDisplay').textContent = retrieveVisitorCookie('visitorName') || 'No name set';
+        document.getElementById('lastVisitDisplay').textContent = retrieveVisitorCookie('lastVisitDate') || 'No previous visits';
+    }
 
-        function clearCookies() {
-            document.cookie = "visitorName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            document.cookie = "lastVisitDate=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            updateVisitorInfo();
-            location.reload();
-        }
+    function clearVisitorCookies() {
+        document.cookie = "visitorName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "lastVisitDate=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        updateVisitorInfo();
+        location.reload();
+    }
 
-        window.onload = function() {
-            manageCookies();
-            updateVisitorInfo();
-            setInterval(updateVisitorInfo, 2000);
-        };
+    window.onload = function() {
+        console.log("Page has loaded, running visitor cookie management.");
+        manageVisitorCookies();
+        updateVisitorInfo();
+        setInterval(updateVisitorInfo, 2000); // Refresh info every 2 seconds
+    };
     </script>
 </head>
 <body>
-        <h1>Welcome to Our Website</h1>
+    <header>
+        <h1>Visitor Tracking Portal</h1>
+        <p>Experience personalized tracking with cookies</p>
+    </header>
     <main>
         <section>
             <h2>Visitor Details</h2>
             <p><strong>Visitor Name:</strong> <span id="visitorNameDisplay">Not Set</span></p>
             <p><strong>Last Visit:</strong> <span id="lastVisitDisplay">Not Available</span></p>
-            <button onclick="clearCookies()">Clear Your Cookies</button>
-            <button onclick="manageCookies()">Manage Cookies</button>
+            <button onclick="clearVisitorCookies()">Clear Your Cookies</button>
         </section>
 
+        <section>
+            <h2>Visitor Actions</h2>
+            <p>Click the button to manage your cookies. If you're a returning visitor, you'll see the date of your last visit.</p>
+            <button onclick="manageVisitorCookies()">Manage Cookies</button>
+        </section>
 
-
+        <section>
+            <h2>About This Page</h2>
+            <p>This simple visitor tracking tool uses cookies to store your name and the date of your last visit. Each time you return, your previous information will be displayed.</p>
+        </section>
     </main>
 </body>
 </html>
