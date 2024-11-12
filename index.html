@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Tracking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        #cookieInfo {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e0f7fa;
+            border: 1px solid #b2ebf2;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script type="text/javascript">
+        function getCookie(c_name) {
+            const cookies = document.cookie.split('; ');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.split('=');
+                if (name === c_name) return decodeURIComponent(value);
+            }
+            return "";
+        }
+
+        function setCookie(c_name, value, expiredays) {
+            const exdate = new Date();
+            exdate.setDate(exdate.getDate() + expiredays);
+            document.cookie = `${c_name}=${encodeURIComponent(value)};expires=${exdate.toUTCString()};path=/`;
+            return true;
+        }
+
+        function checkCookie() {
+            const username = getCookie('username');
+            const lastVisit = getCookie('lastVisit');
+            const currentDate = new Date().toLocaleString();
+
+            if (username) {
+                let welcomeMessage = `Welcome back, ${username}!`;
+                if (lastVisit) {
+                    welcomeMessage += `\nYour last visit was: ${lastVisit}`;
+                }
+                alert(welcomeMessage);
+                setCookie('lastVisit', currentDate, 365);
+            } else {
+                const newUsername = prompt('Please enter your name:', "");
+                if (newUsername) {
+                    setCookie('username', newUsername, 365);
+                    setCookie('lastVisit', currentDate, 365);
+                    alert(`Welcome, ${newUsername}! This is your first visit.`);
+                }
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('usernameDisplay').textContent = getCookie('username') || 'Not set';
+            document.getElementById('lastVisitDisplay').textContent = getCookie('lastVisit') || 'Not set';
+        }
+
+        function clearCookies() {
+            document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.cookie = "lastVisit=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            updateDisplay();
+            location.reload();
+        }
+
+        window.onload = () => {
+            checkCookie();
+            updateDisplay();
+            setInterval(updateDisplay, 2000);
+        };
+    </script>
+</head>
+<body>
+    <h1>Welcome to Our Website</h1>
+    <p>This page demonstrates cookie-based visitor tracking.</p>
+    <div id="cookieInfo">
+        <h3>Cookie Information</h3>
+        <p>Username: <span id="usernameDisplay"></span></p>
+        <p>Last Visit: <span id="lastVisitDisplay"></span></p>
+        <button onclick="clearCookies()">Clear Cookies</button>
+    </div>
+</body>
+</html>
