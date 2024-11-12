@@ -89,6 +89,7 @@
         }
 
         window.onload = () => {
+            console.log("Window loaded, executing checkCookie and updateDisplay.");
             checkCookie();
             updateDisplay();
             setInterval(updateDisplay, 2000);
