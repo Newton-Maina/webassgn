@@ -40,11 +40,9 @@
         console.log("Retrieved username:", username);
         console.log("Retrieved lastVisit:", lastVisit);
 
-        // Get current date in a readable format
         const currentDate = new Date().toLocaleString();
 
         if (username) {
-            // User has visited before
             let welcomeMessage = 'Welcome back, ' + username + '!';
 
             if (lastVisit) {
@@ -53,7 +51,6 @@
 
             alert(welcomeMessage);
 
-            // Update the last visit date
             if (setCookie('lastVisit', currentDate, 365)) {
                 console.log("Last visit date updated successfully");
             }
@@ -71,6 +68,20 @@
                 alert('Welcome, ' + newUsername + '! This is your first visit.');
             }
         }
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+
+        document.getElementById('usernameDisplay').textContent = getCookie('username') || 'Not set';
+        document.getElementById('lastVisitDisplay').textContent = getCookie('lastVisit') || 'Not set';
+    }
+
+    function clearCookies() {
+        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "lastVisit=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        updateDisplay();
+        alert('Cookies have been cleared!');
     }
     </script>
 </head>
@@ -83,23 +94,5 @@
         <p>Last Visit: <span id="lastVisitDisplay"></span></p>
         <button onclick="clearCookies()">Clear Cookies</button>
     </div>
-
-    <script>
-    function updateDisplay() {
-        document.getElementById('usernameDisplay').textContent = getCookie('username') || 'Not set';
-        document.getElementById('lastVisitDisplay').textContent = getCookie('lastVisit') || 'Not set';
-    }
-
-    function clearCookies() {
-        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        document.cookie = "lastVisit=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        updateDisplay();
-        location.reload();
-    }
-
-    // Update display initially and every 2 seconds
-    updateDisplay();
-    setInterval(updateDisplay, 2000);
-    </script>
 </body>
 </html>
