@@ -1,34 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visitor Tracking Portal</title>
+    <title>Visitor Tracking</title>
     <script type="text/javascript">
-    // Function to retrieve a specific cookie value
-    function retrieveVisitorCookie(cookieKey) {
+    function getCookie(c_name) {
         if (document.cookie.length > 0) {
-            let startIdx = document.cookie.indexOf(cookieKey + "=");
-            if (startIdx != -1) {
-                startIdx = startIdx + cookieKey.length + 1;
-                let endIdx = document.cookie.indexOf(";", startIdx);
-                if (endIdx == -1) endIdx = document.cookie.length;
-                return decodeURIComponent(document.cookie.substring(startIdx, endIdx));
+            let c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start != -1) {
+                c_start = c_start + c_name.length + 1;
+                let c_end = document.cookie.indexOf(";", c_start);
+                if (c_end == -1) c_end = document.cookie.length;
+                return decodeURIComponent(document.cookie.substring(c_start, c_end));
             }
         }
         return "";
     }
 
-    // Function to set a cookie with a specific expiration date
-    function storeVisitorCookie(cookieKey, cookieValue, daysToExpire) {
+    function setCookie(c_name, value, expiredays) {
         try {
-            const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + daysToExpire);
-            const cookieString = cookieKey + "=" + encodeURIComponent(cookieValue) +
-                ";expires=" + expiryDate.toUTCString() +
+            const exdate = new Date();
+            exdate.setDate(exdate.getDate() + expiredays);
+            const cookieValue = c_name + "=" + encodeURIComponent(value) +
+                ";expires=" + exdate.toUTCString() +
                 ";path=/";
-            document.cookie = cookieString;
-            console.log("Cookie successfully set:", cookieString);
+            document.cookie = cookieValue;
+            console.log("Cookie set:", cookieValue);
             return true;
         } catch (error) {
             console.error("Error setting cookie:", error);
@@ -36,90 +32,74 @@
         }
     }
 
-    // Function to display personalized message based on cookies
-    function manageVisitorCookies() {
-        console.log("Cookies in current session:", document.cookie);
-        const visitorName = retrieveVisitorCookie('visitorName');
-        const lastVisitDate = retrieveVisitorCookie('lastVisitDate');
+    function checkCookie() {
+        console.log("Current cookies:", document.cookie);
+        const username = getCookie('username');
+        const lastVisit = getCookie('lastVisit');
 
+        console.log("Retrieved username:", username);
+        console.log("Retrieved lastVisit:", lastVisit);
+
+        // Get current date in a readable format
         const currentDate = new Date().toLocaleString();
 
-        if (visitorName) {
-            // Returning visitor
-            let welcomeMessage = 'Welcome back, ' + visitorName + '!';
+        if (username) {
+            // User has visited before
+            let welcomeMessage = 'Welcome back, ' + username + '!';
 
-            if (lastVisitDate) {
-                welcomeMessage += '\nYour last visit was on: ' + lastVisitDate;
+            if (lastVisit) {
+                welcomeMessage += '\nYour last visit was: ' + lastVisit;
             }
 
             alert(welcomeMessage);
 
             // Update the last visit date
-            if (storeVisitorCookie('lastVisitDate', currentDate, 365)) {
-                console.log("Last visit date updated.");
+            if (setCookie('lastVisit', currentDate, 365)) {
+                console.log("Last visit date updated successfully");
             }
         } else {
-            // New visitor
-            const newVisitorName = prompt('Please enter your name:', "");
+            // First time visitor
+            const newUsername = prompt('Please enter your name:', "");
 
-            if (newVisitorName != null && newVisitorName != "") {
-                if (storeVisitorCookie('visitorName', newVisitorName, 365)) {
-                    console.log("Visitor name stored.");
+            if (newUsername != null && newUsername != "") {
+                if (setCookie('username', newUsername, 365)) {
+                    console.log("Username cookie set successfully");
                 }
-                if (storeVisitorCookie('lastVisitDate', currentDate, 365)) {
-                    console.log("First visit date stored.");
+                if (setCookie('lastVisit', currentDate, 365)) {
+                    console.log("Initial visit date set successfully");
                 }
-                alert('Welcome, ' + newVisitorName + '! This is your first visit.');
+                alert('Welcome, ' + newUsername + '! This is your first visit.');
             }
         }
     }
+    </script>
+</head>
+<body onload="checkCookie()">
+    <h1>Welcome to Our Website</h1>
+    <p>This page demonstrates cookie-based visitor tracking.</p>
+    <div id="cookieInfo" style="margin-top: 20px; padding: 10px; background-color: #f0f0f0;">
+        <h3>Cookie Information:</h3>
+        <p>Username: <span id="usernameDisplay"></span></p>
+        <p>Last Visit: <span id="lastVisitDisplay"></span></p>
+        <button onclick="clearCookies()">Clear Cookies</button>
+    </div>
 
-    // Function to show visitor information on the page
-    function updateVisitorInfo() {
-        document.getElementById('visitorNameDisplay').textContent = retrieveVisitorCookie('visitorName') || 'No name set';
-        document.getElementById('lastVisitDisplay').textContent = retrieveVisitorCookie('lastVisitDate') || 'No previous visits';
+    <script>
+    function updateDisplay() {
+        document.getElementById('usernameDisplay').textContent = getCookie('username') || 'Not set';
+        document.getElementById('lastVisitDisplay').textContent = getCookie('lastVisit') || 'Not set';
     }
 
-    // Function to clear all cookies related to the visit
-    function clearVisitorCookies() {
-        document.cookie = "visitorName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        document.cookie = "lastVisitDate=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        updateVisitorInfo();
+    function clearCookies() {
+        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "lastVisit=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        updateDisplay();
         location.reload();
     }
 
-    // Initialize functions on page load
-    window.onload = function() {
-        console.log("Page has loaded, running visitor cookie management.");
-        manageVisitorCookies();
-        updateVisitorInfo();
-        setInterval(updateVisitorInfo, 2000); // Refresh info every 2 seconds
-    };
+    // Update display initially and every 2 seconds
+    updateDisplay();
+    setInterval(updateDisplay, 2000);
     </script>
-</head>
-<body>
-    <header>
-        <h1>Visitor Tracking Portal</h1>
-        <p>Experience personalized tracking with cookies</p>
-    </header>
-    <main>
-        <section>
-            <h2>Visitor Details</h2>
-            <p><strong>Visitor Name:</strong> <span id="visitorNameDisplay">Not Set</span></p>
-            <p><strong>Last Visit:</strong> <span id="lastVisitDisplay">Not Available</span></p>
-            <button onclick="clearVisitorCookies()">Clear Your Cookies</button>
-        </section>
-
-        <section>
-            <h2>Visitor Actions</h2>
-            <p>Click the button to manage your cookies. If you're a returning visitor, you'll see the date of your last visit.</p>
-            <button onclick="manageVisitorCookies()">Manage Cookies</button>
-        </section>
-
-        <section>
-            <h2>About This Page</h2>
-            <p>This simple visitor tracking tool uses cookies to store your name and the date of your last visit. Each time you return, your previous information will be displayed.</p>
-        </section>
-    </main>
 </body>
 </html>
